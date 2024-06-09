@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { BsFillArchiveFill, BsFillGrid3X3GapFill, BsPeopleFill, BsListCheck, BsMenuButtonWideFill } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
 
-
 function Sidebar({ openSidebarToggle, OpenSidebar }) {
   const [activeItem, setActiveItem] = useState('manageUser');
 
@@ -24,7 +23,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
           className={`sidebar-list-item ${activeItem === 'manageUser' ? 'active' : ''}`}
           onClick={() => handleItemClick('manageUser')}
         >
-          <Link to="">
+          <Link to="/">
             <BsPeopleFill className='icon'/> Manage User
           </Link>
         </li>
@@ -32,7 +31,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
           className={`sidebar-list-item ${activeItem === 'donationDetails' ? 'active' : ''}`}
           onClick={() => handleItemClick('donationDetails')}
         >
-          <Link to="">
+          <Link to="/donation">
             <BsFillArchiveFill className='icon'/> Donation Details
           </Link>
         </li>
@@ -40,7 +39,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
           className={`sidebar-list-item ${activeItem === 'expensesDetails' ? 'active' : ''}`}
           onClick={() => handleItemClick('expensesDetails')}
         >
-          <Link to="">
+          <Link to="/expenses">
             <BsFillGrid3X3GapFill className='icon'/> Expenses Details
           </Link>
         </li>
@@ -48,7 +47,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
           className={`sidebar-list-item ${activeItem === 'bookingDetails' ? 'active' : ''}`}
           onClick={() => handleItemClick('bookingDetails')}
         >
-          <Link to="">
+          <Link to="/booking">
             <BsListCheck className='icon'/> Booking Details
           </Link>
         </li>
@@ -56,7 +55,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
           className={`sidebar-list-item ${activeItem === 'rentalDetails' ? 'active' : ''}`}
           onClick={() => handleItemClick('rentalDetails')}
         >
-          <Link to="">
+          <Link to="/rental">
             <BsMenuButtonWideFill className='icon'/> Rental Details
           </Link>
         </li>

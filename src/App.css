@@ -5,6 +5,9 @@ body {
   color: #9e9ea4;
   font-family: 'Montserrat', sans-serif;
 }
+.main-content {
+  padding: 20px;
+}
 
 .icon {
   vertical-align: middle;
@@ -35,6 +38,7 @@ body {
     'sidebar header header header'
     'sidebar main main main';
   height: 100vh;
+
 }
 
 /* Header  */
@@ -57,6 +61,7 @@ body {
 .menu-icon {
   display: none;
 }
+
 /* End Header  */
 
 /* Sidebar  */
