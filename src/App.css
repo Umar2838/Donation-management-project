@@ -203,9 +203,31 @@ cursor: pointer;
 
 /* End Main  */
 
-/* Material UI CSS Start */
+/* Login CSS Start */
 
-/* Material UI CSS End */
+.login-container{ 
+    width: 250px;
+    height: 250px;
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+.login-container img{
+  width: 250px;
+  height: 250px;
+}
+.login-container h1{
+  color: #000;
+  text-align: center;
+  margin-top:-50px;
+  font-size:24px;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight:500;
+  padding: 10px;
+}
+
+/* Login CSS End */
 
 
 /* Medium <= 992px */

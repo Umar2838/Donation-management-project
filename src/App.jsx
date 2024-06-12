@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import {  Routes, Route } from 'react-router-dom';
+import {  Routes, Route , Navigate } from 'react-router-dom';
 import './App.css';
+import Login from "./Components/Login"
 import Header from './Components/Header';
 import Sidebar from './Components/Sidebar';
 import Home from './Components/Home';
@@ -11,27 +12,41 @@ import Rental from './Components/Rental';
 
 function App() {
   const [openSidebarToggle, setOpenSidebarToggle] = useState(false);
-
-  const OpenSidebar = () => {
+  const [isAuthenticated , setIsAuthenticated] = useState(false);
+  
+  const openSidebar = () => {
     setOpenSidebarToggle(!openSidebarToggle);
+  };
+  const login = (email, password) => {
+    const adminEmail = 'admin@gmail.com';
+    const adminPassword = '123456';
+
+    if (email === adminEmail && password === adminPassword) {
+      setIsAuthenticated(true);
+    } else {
+      alert('Invalid credentials');
+    }
+  };
+
+  const ProtectedRoute = ({ element }) => {
+    return isAuthenticated ? element : <Navigate to="/" />;
   };
 
   return (
-
-      <div className='grid-container'>
-        <Header OpenSidebar={OpenSidebar} />
-        <Sidebar openSidebarToggle={openSidebarToggle} OpenSidebar={OpenSidebar} />
-        <main className='main-content'>
-          <Routes>
-            <Route exact path="/" element={<Home />} />
-            <Route path="/donation" element={<Donation />} />
-            <Route path="/expenses" element={<Expense />} />
-            <Route path="/booking" element={<Booking />} />
-            <Route path="/rental" element={<Rental />} />
-          </Routes>
-        </main>
-      </div>
-
+    <div className="grid-container">
+      {isAuthenticated && <Header openSidebar={openSidebar} />}
+      {isAuthenticated && <Sidebar openSidebarToggle={openSidebarToggle} openSidebar={openSidebar} />}
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<Login onLogin={login} />} />
+          <Route path="/home" element={<ProtectedRoute element={<Home />} />} />
+          <Route path="/donation" element={<ProtectedRoute element={<Donation />} />} />
+          <Route path="/expenses" element={<ProtectedRoute element={<Expense />} />} />
+          <Route path="/booking" element={<ProtectedRoute element={<Booking />} />} />
+          <Route path="/rental" element={<ProtectedRoute element={<Rental />} />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 

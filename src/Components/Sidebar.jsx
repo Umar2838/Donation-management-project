@@ -23,7 +23,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
           className={`sidebar-list-item ${activeItem === 'manageUser' ? 'active' : ''}`}
           onClick={() => handleItemClick('manageUser')}
         >
-          <Link to="/">
+          <Link to="/home">
             <BsPeopleFill className='icon'/> Manage User
           </Link>
         </li>
