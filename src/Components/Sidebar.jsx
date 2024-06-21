@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BsFillArchiveFill, BsFillGrid3X3GapFill, BsPeopleFill, BsListCheck, BsMenuButtonWideFill } from 'react-icons/bs';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 function Sidebar({ openSidebarToggle, OpenSidebar }) {
+  const location = useLocation();
   const [activeItem, setActiveItem] = useState('manageUser');
 
-  const handleItemClick = (item) => {
-    setActiveItem(item);
-  };
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/home') {
+      setActiveItem('manageUser');
+    } else if (path === '/donation') {
+      setActiveItem('donationDetails');
+    } else if (path === '/expenses') {
+      setActiveItem('expensesDetails');
+    } else if (path === '/booking') {
+      setActiveItem('bookingDetails');
+    } else if (path === '/rental') {
+      setActiveItem('rentalDetails');
+    }
+  }, [location]);
 
   return (
     <aside id="sidebar" className={openSidebarToggle ? 'sidebar-responsive' : ''}>
@@ -21,7 +33,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
       <ul className='sidebar-list'>
         <li 
           className={`sidebar-list-item ${activeItem === 'manageUser' ? 'active' : ''}`}
-          onClick={() => handleItemClick('manageUser')}
+          onClick={() => setActiveItem('manageUser')}
         >
           <Link to="/home">
             <BsPeopleFill className='icon'/> Manage User
@@ -29,7 +41,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
         </li>
         <li 
           className={`sidebar-list-item ${activeItem === 'donationDetails' ? 'active' : ''}`}
-          onClick={() => handleItemClick('donationDetails')}
+          onClick={() => setActiveItem('donationDetails')}
         >
           <Link to="/donation">
             <BsFillArchiveFill className='icon'/> Donation Details
@@ -37,7 +49,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
         </li>
         <li 
           className={`sidebar-list-item ${activeItem === 'expensesDetails' ? 'active' : ''}`}
-          onClick={() => handleItemClick('expensesDetails')}
+          onClick={() => setActiveItem('expensesDetails')}
         >
           <Link to="/expenses">
             <BsFillGrid3X3GapFill className='icon'/> Expenses Details
@@ -45,7 +57,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
         </li>
         <li 
           className={`sidebar-list-item ${activeItem === 'bookingDetails' ? 'active' : ''}`}
-          onClick={() => handleItemClick('bookingDetails')}
+          onClick={() => setActiveItem('bookingDetails')}
         >
           <Link to="/booking">
             <BsListCheck className='icon'/> Booking Details
@@ -53,7 +65,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
         </li>
         <li 
           className={`sidebar-list-item ${activeItem === 'rentalDetails' ? 'active' : ''}`}
-          onClick={() => handleItemClick('rentalDetails')}
+          onClick={() => setActiveItem('rentalDetails')}
         >
           <Link to="/rental">
             <BsMenuButtonWideFill className='icon'/> Rental Details

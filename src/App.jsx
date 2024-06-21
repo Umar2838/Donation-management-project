@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import Login from "./Components/Login";
 import Header from './Components/Header';
