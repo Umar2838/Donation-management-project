@@ -3,7 +3,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import { Button, Form, Input, InputNumber } from 'antd';
-import { auth, db, collection, addDoc, updateDoc, deleteDoc, getDocs, updateProfile, createUserWithEmailAndPassword, doc } from "../Components/Firebase";
+import { db, collection, addDoc, updateDoc, deleteDoc, getDocs,  doc } from "../Components/Firebase";
 import Swal from 'sweetalert2';
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
@@ -30,6 +30,9 @@ function Donation() {
   const [newContact, setNewContact] = useState('');
   const [newAmount, setNewAmount] = useState('');
   const [newPurpose, setNewPurpose] = useState('');
+  const [newPaymentMethod, setNewPaymentMethod] = useState(''); 
+  const [newStatus, setNewStatus] = useState(''); 
+
 
   useEffect(() => {
     fetchUsers();
@@ -44,12 +47,16 @@ function Donation() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+
+
   const handleEditOpen = (user) => {
     setSelectedUser(user);
     setNewDonarName(user.donarName);
     setNewContact(user.contact);
     setNewAmount(user.amount);
     setNewPurpose(user.purpose);
+    setNewPaymentMethod(user.paymentMethod);
+    setNewStatus(user.status);
     setEditOpen(true);
   };
 
@@ -59,6 +66,8 @@ function Donation() {
     setNewContact('');
     setNewAmount('');
     setNewPurpose('');
+    setNewPaymentMethod('');
+    setNewStatus('');
     setEditOpen(false);
   };
 
@@ -68,7 +77,9 @@ function Donation() {
         donarName: values.donarName,
         contact: values.contact,
         amount: values.amount,
-        purpose: values.purpose
+        purpose: values.purpose,
+        paymentmethod: values.paymentmethod,
+        status:values.status
       });
       handleClose();
       await fetchUsers();
@@ -97,6 +108,8 @@ function Donation() {
           contact: newContact,
           amount: newAmount,
           purpose: newPurpose,
+          paymentmethod: newPaymentMethod,
+          status :newStatus
         });
         await fetchUsers();
         handleEditClose();
@@ -131,11 +144,15 @@ function Donation() {
   };
 
   const columns = [
-    { field: 'donarid', headerName: 'ID', width: 200 },
-    { field: 'donarName', headerName: 'Donar Name', width: 150, editable: true },
-    { field: 'contact', headerName: 'Phone No', width: 150 },
+    { field: 'donarid', headerName: 'ID', width: 100 },
+    { field: 'donarName', headerName: 'Donar Name', width: 100, editable: true },
+    { field: 'contact', headerName: 'Phone No', width: 100 },
     { field: 'amount', headerName: 'Amount', width: 100 },
     { field: 'purpose', headerName: 'Purpose', width: 100 },
+    { field: 'paymentmethod', headerName: 'Pay Method', width: 100 },
+    { field: 'status', headerName: 'Pay Status', width: 100 },
+
+
     {
       field: 'actions',
       headerName: 'Actions',
@@ -208,6 +225,20 @@ function Donation() {
                 >
                   <Input />
                 </Form.Item>
+                <Form.Item
+                  label="Pay Method"
+                  name="paymentmethod"
+                  rules={[{ required: true, message: 'Please input payment method!' }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label="Pay Status"
+                  name="status"
+                  rules={[{ required: true, message: 'Please input payment status!' }]}
+                >
+                  <Input />
+                </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                   <Button type="primary" htmlType="submit">Donate</Button>
                 </Form.Item>
@@ -263,6 +294,18 @@ function Donation() {
                 name="purpose"
               >
                 <Input value={newPurpose} onChange={(e) => setNewPurpose(e.target.value)} />
+              </Form.Item>
+              <Form.Item
+                label="Pay Method"
+                name="paymentmethod"
+              >
+                <Input value={newPaymentMethod} onChange={(e) => setNewPaymentMethod(e.target.value)} />
+              </Form.Item>
+              <Form.Item
+                label="Pay Status"
+                name="status"
+              >
+                <Input value={newStatus} onChange={(e) => setNewStatus(e.target.value)} />
               </Form.Item>
               <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                 <Button type="primary" htmlType="submit">Update</Button>
