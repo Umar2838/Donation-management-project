@@ -24,14 +24,13 @@ const style = {
 function Donation() {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [donars, setDonars] = useState([]);
+  const [selectedDonar, setSelectedDonar] = useState(null);
   const [newDonarName, setNewDonarName] = useState('');
   const [newContact, setNewContact] = useState('');
   const [newAmount, setNewAmount] = useState('');
   const [newPurpose, setNewPurpose] = useState('');
-  const [newPaymentMethod, setNewPaymentMethod] = useState(''); 
-  const [newStatus, setNewStatus] = useState(''); 
+  const [newRecieverName, setNewRecieverName] = useState(''); 
 
 
   useEffect(() => {
@@ -40,8 +39,8 @@ function Donation() {
 
   const fetchUsers = async () => {
     const usersSnapshot = await getDocs(collection(db, "donar"));
-    const userData = usersSnapshot.docs.map(doc => ({ id: doc.id, donarid: doc.id, ...doc.data() }));
-    setUsers(userData);
+    const donarData = usersSnapshot.docs.map(doc => ({ id: doc.id, donarid: doc.id, ...doc.data() }));
+    setDonars(donarData);
   };
 
   const handleOpen = () => setOpen(true);
@@ -49,25 +48,23 @@ function Donation() {
 
 
 
-  const handleEditOpen = (user) => {
-    setSelectedUser(user);
-    setNewDonarName(user.donarName);
-    setNewContact(user.contact);
-    setNewAmount(user.amount);
-    setNewPurpose(user.purpose);
-    setNewPaymentMethod(user.paymentMethod);
-    setNewStatus(user.status);
+  const handleEditOpen = (donar) => {
+    setSelectedDonar(donar);
+    setNewDonarName(donar.donarName);
+    setNewContact(donar.contact);
+    setNewAmount(donar.amount);
+    setNewPurpose(donar.purpose);
+    setNewRecieverName(donar.recname);
     setEditOpen(true);
   };
 
   const handleEditClose = () => {
-    setSelectedUser(null);
+    setSelectedDonar(null);
     setNewDonarName('');
     setNewContact('');
     setNewAmount('');
     setNewPurpose('');
-    setNewPaymentMethod('');
-    setNewStatus('');
+    setNewRecieverName('');
     setEditOpen(false);
   };
 
@@ -78,8 +75,7 @@ function Donation() {
         contact: values.contact,
         amount: values.amount,
         purpose: values.purpose,
-        paymentmethod: values.paymentmethod,
-        status:values.status
+        recname: values.recname,
       });
       handleClose();
       await fetchUsers();
@@ -100,16 +96,15 @@ function Donation() {
   };
 
   const handleEditSubmit = async () => {
-    if (selectedUser) {
+    if (selectedDonar) {
       try {
-        const userDoc = doc(db, "donar", selectedUser.id);
-        await updateDoc(userDoc, {
+        const donarDoc = doc(db, "donar", selectedDonar.id);
+        await updateDoc(donarDoc, {
           donarName: newDonarName,
           contact: newContact,
           amount: newAmount,
           purpose: newPurpose,
-          paymentmethod: newPaymentMethod,
-          status :newStatus
+          recname: newRecieverName,
         });
         await fetchUsers();
         handleEditClose();
@@ -144,13 +139,12 @@ function Donation() {
   };
 
   const columns = [
-    { field: 'donarid', headerName: 'ID', width: 100 },
+    { field: 'donarid', headerName: 'ID', width: 200 },
     { field: 'donarName', headerName: 'Donar Name', width: 100, editable: true },
     { field: 'contact', headerName: 'Phone No', width: 100 },
     { field: 'amount', headerName: 'Amount', width: 100 },
     { field: 'purpose', headerName: 'Purpose', width: 100 },
-    { field: 'paymentmethod', headerName: 'Pay Method', width: 100 },
-    { field: 'status', headerName: 'Pay Status', width: 100 },
+    { field: 'recname', headerName: 'Reciever Name', width: 150 },
 
 
     {
@@ -226,16 +220,9 @@ function Donation() {
                   <Input />
                 </Form.Item>
                 <Form.Item
-                  label="Pay Method"
-                  name="paymentmethod"
-                  rules={[{ required: true, message: 'Please input payment method!' }]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  label="Pay Status"
-                  name="status"
-                  rules={[{ required: true, message: 'Please input payment status!' }]}
+                  label="Reciever Name"
+                  name="recname"
+                  rules={[{ required: true, message: 'Please input reciever name!' }]}
                 >
                   <Input />
                 </Form.Item>
@@ -249,14 +236,14 @@ function Donation() {
       </div>
       <div style={{ height: 400, width: '100%' }}>
         <DataGrid
-          rows={users}
+          rows={donars}
           columns={columns}
           pageSize={5}
           checkboxSelection
           disableSelectionOnClick
         />
       </div>
-      {selectedUser && (
+      {selectedDonar && (
         <Modal
           open={editOpen}
           onClose={handleEditClose}
@@ -296,16 +283,10 @@ function Donation() {
                 <Input value={newPurpose} onChange={(e) => setNewPurpose(e.target.value)} />
               </Form.Item>
               <Form.Item
-                label="Pay Method"
-                name="paymentmethod"
+                label="Reciever Name"
+                name="recname"
               >
-                <Input value={newPaymentMethod} onChange={(e) => setNewPaymentMethod(e.target.value)} />
-              </Form.Item>
-              <Form.Item
-                label="Pay Status"
-                name="status"
-              >
-                <Input value={newStatus} onChange={(e) => setNewStatus(e.target.value)} />
+                <Input value={newRecieverName} onChange={(e) => setNewRecieverName(e.target.value)} />
               </Form.Item>
               <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                 <Button type="primary" htmlType="submit">Update</Button>
