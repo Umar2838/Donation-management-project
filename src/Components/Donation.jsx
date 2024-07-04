@@ -5,7 +5,7 @@ import Modal from '@mui/material/Modal';
 import { Button, Form, Input, InputNumber } from 'antd';
 import { db, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from "../Components/Firebase";
 import Swal from 'sweetalert2';
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaFilePdf } from "react-icons/fa"; // Importing PDF icon
 import { MdDelete } from "react-icons/md";
 
 const style = {
@@ -13,7 +13,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 300,
+  width: 400,
   bgcolor: '#9e9ea4',
   border: 'none',
   borderRadius: "10px",
@@ -30,7 +30,7 @@ function Donation() {
   const [newContact, setNewContact] = useState('');
   const [newAmount, setNewAmount] = useState('');
   const [newPurpose, setNewPurpose] = useState('');
-  const [newRecieverName, setNewRecieverName] = useState(''); 
+  const [newRecieverName, setNewRecieverName] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -136,22 +136,43 @@ function Donation() {
     }
   };
 
+  const handleGenerateReport = (donar) => {
+ 
+    const reportContent = 
+                          `Donation Details Report \n\n`+
+                          `Donar Name: ${donar.donarName}\n` +
+                          `Phone No: ${donar.contact}\n` +
+                          `Amount: ${donar.amount}\n` +
+                          `Purpose: ${donar.purpose}\n` +
+                          `Received by: ${donar.recname}`;
+
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${donar.donarName}_report.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   const columns = [
     { field: 'donarid', headerName: 'ID', width: 100 },
     { field: 'donarName', headerName: 'Donar Name', width: 100, editable: true },
     { field: 'contact', headerName: 'Phone No', width: 100 },
     { field: 'amount', headerName: 'Amount', width: 100 },
     { field: 'purpose', headerName: 'Purpose', width: 100 },
-    { field: 'recname', headerName: 'Recieved by', width: 100 },
-    { field: 'createdAt', headerName: 'Created At', width: 100 }, // New column with check
+    { field: 'recname', headerName: 'Received by', width: 100 },
+    { field: 'createdAt', headerName: 'Created At', width: 150 },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 100,
+      width: 150,
       renderCell: (params) => (
         <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
           <Button style={{ backgroundColor: 'transparent', border: "none", padding: "5px" }} onClick={() => handleEditOpen(params.row)}><FaEdit size={20} color='#3a3c3f' /></Button>
           <Button style={{ backgroundColor: 'transparent', border: "none", padding: "5px" }} onClick={() => handleDelete(params.row.id)}><MdDelete size={20} color='#3a3c3f' /></Button>
+          <Button style={{ backgroundColor: 'transparent', border: "none", padding: "5px" }} onClick={() => handleGenerateReport(params.row)}><FaFilePdf size={20} color='#3a3c3f' /></Button>
         </div>
       )
     }
@@ -217,9 +238,9 @@ function Donation() {
                   <Input />
                 </Form.Item>
                 <Form.Item
-                  label="Reciever Name"
+                  label="Receiver Name"
                   name="recname"
-                  rules={[{ required: true, message: 'Please input reciever name!' }]}
+                  rules={[{ required: true, message: 'Please input receiver name!' }]}
                 >
                   <Input />
                 </Form.Item>
@@ -297,9 +318,9 @@ function Donation() {
                 <Input value={newPurpose} onChange={(e) => setNewPurpose(e.target.value)} />
               </Form.Item>
               <Form.Item
-                label="Reciever Name"
+                label="Receiver Name"
                 name="recname"
-                rules={[{ required: true, message: 'Please input reciever name!' }]}
+                rules={[{ required: true, message: 'Please input receiver name!' }]}
                 initialValue={selectedDonar.recname}
               >
                 <Input value={newRecieverName} onChange={(e) => setNewRecieverName(e.target.value)} />

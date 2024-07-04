@@ -2,23 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { DataGrid } from "@mui/x-data-grid";
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
-import { Button, Form, Input, InputNumber } from 'antd';
+import { Button, Form, Input, InputNumber, DatePicker } from 'antd';
 import { db, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from "../Components/Firebase";
 import Swal from 'sweetalert2';
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaFilePdf } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+
+const { RangePicker } = DatePicker;
 
 const style = {
   position: 'absolute',
-  top: '50%',
+  top: '55%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 300,
+  width: 400,
   bgcolor: '#9e9ea4',
   border: 'none',
   borderRadius: "10px",
   boxShadow: 24,
   p: 4,
+  zIndex: 1000, // Ensure the modal has a high z-index
 };
 
 function Booking() {
@@ -28,9 +31,9 @@ function Booking() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [newBookingType, setNewBookingType] = useState('');
   const [newBookingAmount, setNewBookingAmount] = useState('');
-  const [newDuration,setNewDuration] = useState('');
-  const [newContact,setNewContact] = useState('');
-  const [newBookingDate, setNewBookingDate] = useState('');
+  const [newDuration, setNewDuration] = useState('');
+  const [newContact, setNewContact] = useState('');
+  const [newBookingDates, setNewBookingDates] = useState([]);
 
   useEffect(() => {
     fetchBooking();
@@ -47,11 +50,11 @@ function Booking() {
 
   const handleEditOpen = (booking) => {
     setSelectedBooking(booking);
-    setNewBookingDate(booking.bookingtype);
+    setNewBookingType(booking.bookingtype);
     setNewBookingAmount(booking.bookingamount);
-    setNewBookingDate(booking.bookingdate);
     setNewDuration(booking.bookingduration);
-    setNewContact(booking.bookingcontact)
+    setNewContact(booking.bookingcontact);
+    setNewBookingDates([booking.bookingstartdate, booking.bookingenddate]);
     setEditOpen(true);
   };
 
@@ -59,8 +62,9 @@ function Booking() {
     setSelectedBooking(null);
     setNewBookingType('');
     setNewBookingAmount('');
-    setNewBookingDate('');
     setNewDuration('');
+    setNewContact('');
+    setNewBookingDates([]);
     setEditOpen(false);
   };
 
@@ -69,10 +73,11 @@ function Booking() {
       await addDoc(collection(db, "bookings"), {
         bookingtype: values.bookingtype,
         bookingamount: values.bookingamount,
-        bookingdate: values.bookingdate,
+        bookingstartdate: values.bookingdates[0].format('YYYY-MM-DD'),
+        bookingenddate: values.bookingdates[1].format('YYYY-MM-DD'),
+        bookingcontact: values.bookingcontact,
         bookingduration: values.bookingduration,
         createdAt: new Date().toLocaleString(),
-
       });
       handleClose();
       await fetchBooking();
@@ -100,8 +105,9 @@ function Booking() {
           bookingtype: newBookingType,
           bookingamount: newBookingAmount,
           bookingcontact: newContact,
-          bookingdate: newBookingDate,
-          bookingduration:newDuration,
+          bookingstartdate: newBookingDates[0].format('YYYY-MM-DD'),
+          bookingenddate: newBookingDates[1].format('YYYY-MM-DD'),
+          bookingduration: newDuration,
         });
         await fetchBooking();
         handleEditClose();
@@ -135,23 +141,44 @@ function Booking() {
     }
   };
 
+  const handleGenerateReport = (booking) => {
+    // Generate your report here
+    const reportContent = 
+    `Booking Details Report \n\n`+
+    `Booking Type: ${booking.bookingtype}\n` +
+                          `Amount: ${booking.bookingamount}\n` +
+                          `Booking Dates: ${booking.bookingstartdate} to ${booking.bookingenddate}\n` +
+                          `Contact: ${booking.bookingcontact}\n` +
+                          `Duration: ${booking.bookingduration}`;
+
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${booking.bookingtype}_report.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   const columns = [
     { field: 'bookingid', headerName: 'ID', width: 100 },
-    { field: 'bookingtype', headerName: 'Booking Type', width: 130 },
-    { field: 'bookingamount', headerName: 'Booking Amount', width: 100 },
+    { field: 'bookingtype', headerName: 'Booking Type', width: 120 },
+    { field: 'bookingamount', headerName: 'Amount', width: 100 },
     { field: 'bookingcontact', headerName: 'Contact', width: 100 },
-    { field: 'bookingdate', headerName: 'Booking Date', width: 180 },
+    { field: 'bookingstartdate', headerName: 'Start Date', width: 120 },
+    { field: 'bookingenddate', headerName: 'End Date', width: 120 },
     { field: 'bookingduration', headerName: 'Duration', width: 100 },
-    { field: 'createdAt', headerName: 'Created At', width: 170 }, 
-
+    { field: 'createdAt', headerName: 'Created At', width: 170 },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 100,
+      width: 120,
       renderCell: (params) => (
         <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
           <Button style={{ backgroundColor: 'transparent', border: "none", padding: "5px" }} onClick={() => handleEditOpen(params.row)}><FaEdit size={20} color='#3a3c3f' /></Button>
           <Button style={{ backgroundColor: 'transparent', border: "none", padding: "5px" }} onClick={() => handleDelete(params.row.id)}><MdDelete size={20} color='#3a3c3f' /></Button>
+          <Button style={{ backgroundColor: 'transparent', border: "none", padding: "5px" }} onClick={() => handleGenerateReport(params.row)}><FaFilePdf size={20} color='#3a3c3f' /></Button>
         </div>
       )
     }
@@ -164,7 +191,7 @@ function Booking() {
           <h3>Booking Management</h3>
         </div>
         <div>
-          <button onClick={handleOpen} className='btn'>Create bookings</button>
+          <button onClick={handleOpen} className='btn'>Create Bookings</button>
           <Modal
             open={open}
             onClose={handleClose}
@@ -191,7 +218,7 @@ function Booking() {
                 </Form.Item>
                 <Form.Item
                   name="bookingamount"
-                  label="Booking Amount"
+                  label="Amount"
                   rules={[
                     { type: 'number', message: 'The input is not valid number!' },
                     { required: true, message: 'Please input Amount!' },
@@ -200,7 +227,7 @@ function Booking() {
                   <InputNumber />
                 </Form.Item>
                 <Form.Item
-                  name="contact"
+                  name="bookingcontact"
                   label="Contact"
                   rules={[
                     { type: 'number', message: 'The input is not valid number!' },
@@ -210,13 +237,13 @@ function Booking() {
                   <InputNumber />
                 </Form.Item>
                 <Form.Item
-                  name="boookingdate"
-                  label="Booking date"
+                  name="bookingdates"
+                  label="Booking Dates"
                   rules={[
-                    { required: true, message: 'Please input booking date!' },
+                    { type: 'array', required: true, message: 'Please select booking dates!' },
                   ]}
                 >
-                  <Input />
+                  <RangePicker getPopupContainer={(triggerNode) => triggerNode.parentNode} />
                 </Form.Item>
                 <Form.Item
                   name="bookingduration"
@@ -265,22 +292,22 @@ function Booking() {
                 <Input value={newBookingType} onChange={(e) => setNewBookingType(e.target.value)} />
               </Form.Item>
               <Form.Item
-                label="Booking Amount"
+                label="Amount"
                 name="bookingamount"
               >
                 <InputNumber value={newBookingAmount} onChange={(value) => setNewBookingAmount(value)} />
               </Form.Item>
               <Form.Item
                 label="Contact"
-                name="contact"
+                name="bookingcontact"
               >
                 <InputNumber value={newContact} onChange={(value) => setNewContact(value)} />
               </Form.Item>
               <Form.Item
-                label="Booking Date"
-                name="bookingdate"
+                label="Booking Dates"
+                name="bookingdates"
               >
-                <Input value={newBookingDate} onChange={(e) => setNewBookingDate(e.target.value)} />
+                <RangePicker value={newBookingDates} onChange={(dates) => setNewBookingDates(dates)} getPopupContainer={(triggerNode) => triggerNode.parentNode} />
               </Form.Item>
               <Form.Item
                 label="Duration"

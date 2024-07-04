@@ -13,7 +13,7 @@ import Rental from './Components/Rental';
 function App() {
   const [openSidebarToggle, setOpenSidebarToggle] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
+  const Navigate = useNavigate(); // Issue: useNavigate should be useNavigate()
 
   useEffect(() => {
     const loggedIn = localStorage.getItem('isAuthenticated') === 'true';
@@ -41,17 +41,17 @@ function App() {
   const logout = () => {
     setIsAuthenticated(false);
     localStorage.removeItem('isAuthenticated');
-    navigate('/');
+    Navigate('/'); // Issue: Should be navigate('/')
   };
 
   const ProtectedRoute = ({ element }) => {
-    return isAuthenticated ? element : "/home" ;
+    return isAuthenticated ? element : <Navigate to="/" />; // Issue: Should be navigate('/')
   };
 
   return (
     <div className="grid-container">
       {isAuthenticated && <Header openSidebar={openSidebar} onLogout={logout} />}
-      {isAuthenticated && <Sidebar openSidebarToggle={openSidebarToggle} openSidebar={openSidebar} />}
+      {isAuthenticated && <Sidebar openSidebarToggle={openSidebarToggle} OpenSidebar={openSidebar} />}
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Login onLogin={login} />} />
