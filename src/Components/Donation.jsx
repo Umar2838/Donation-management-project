@@ -3,7 +3,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import { Button, Form, Input, InputNumber } from 'antd';
-import { db, collection, addDoc, updateDoc, deleteDoc, getDocs,  doc } from "../Components/Firebase";
+import { db, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from "../Components/Firebase";
 import Swal from 'sweetalert2';
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
@@ -32,7 +32,6 @@ function Donation() {
   const [newPurpose, setNewPurpose] = useState('');
   const [newRecieverName, setNewRecieverName] = useState(''); 
 
-
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -45,8 +44,6 @@ function Donation() {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
-
 
   const handleEditOpen = (donar) => {
     setSelectedDonar(donar);
@@ -76,6 +73,7 @@ function Donation() {
         amount: values.amount,
         purpose: values.purpose,
         recname: values.recname,
+        createdAt: new Date().toLocaleString(),
       });
       handleClose();
       await fetchUsers();
@@ -139,14 +137,13 @@ function Donation() {
   };
 
   const columns = [
-    { field: 'donarid', headerName: 'ID', width: 200 },
+    { field: 'donarid', headerName: 'ID', width: 100 },
     { field: 'donarName', headerName: 'Donar Name', width: 100, editable: true },
     { field: 'contact', headerName: 'Phone No', width: 100 },
     { field: 'amount', headerName: 'Amount', width: 100 },
     { field: 'purpose', headerName: 'Purpose', width: 100 },
-    { field: 'recname', headerName: 'Reciever Name', width: 150 },
-
-
+    { field: 'recname', headerName: 'Recieved by', width: 100 },
+    { field: 'createdAt', headerName: 'Created At', width: 100 }, // New column with check
     {
       field: 'actions',
       headerName: 'Actions',
@@ -247,44 +244,63 @@ function Donation() {
         <Modal
           open={editOpen}
           onClose={handleEditClose}
-          aria-labelledby="edit-modal-title"
-          aria-describedby="edit-modal-description"
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
         >
           <Box sx={style}>
             <Form
-              name="editForm"
+              name="basic"
               labelCol={{ span: 8 }}
               wrapperCol={{ span: 16 }}
+              style={{ maxWidth: 500 }}
+              initialValues={{ remember: true }}
               onFinish={handleEditSubmit}
+              onFinishFailed={onFinishFailed}
+              autoComplete="off"
             >
               <Form.Item
                 label="Donar Name"
                 name="donarName"
+                rules={[{ required: true, message: 'Please input donar name!' }]}
+                initialValue={selectedDonar.donarName}
               >
                 <Input value={newDonarName} onChange={(e) => setNewDonarName(e.target.value)} />
               </Form.Item>
               <Form.Item
-                label="Phone No"
                 name="contact"
-             
+                label="Phone No"
+                rules={[
+                  { type: 'number', message: 'The input is not valid number!' },
+                  { required: true, message: 'Please input Phone No!' },
+                ]}
+                initialValue={selectedDonar.contact}
               >
-                <Input value={newContact} onChange={(e) => setNewContact(e.target.value)} />
+                <InputNumber value={newContact} onChange={(value) => setNewContact(value)} />
               </Form.Item>
               <Form.Item
-                label="Amount"
                 name="amount"
+                label="Amount"
+                rules={[
+                  { type: 'number', message: 'The input is not valid number!' },
+                  { required: true, message: 'Please input Amount!' },
+                ]}
+                initialValue={selectedDonar.amount}
               >
                 <InputNumber value={newAmount} onChange={(value) => setNewAmount(value)} />
               </Form.Item>
               <Form.Item
                 label="Purpose"
                 name="purpose"
+                rules={[{ required: true, message: 'Please input donation purpose!' }]}
+                initialValue={selectedDonar.purpose}
               >
                 <Input value={newPurpose} onChange={(e) => setNewPurpose(e.target.value)} />
               </Form.Item>
               <Form.Item
                 label="Reciever Name"
                 name="recname"
+                rules={[{ required: true, message: 'Please input reciever name!' }]}
+                initialValue={selectedDonar.recname}
               >
                 <Input value={newRecieverName} onChange={(e) => setNewRecieverName(e.target.value)} />
               </Form.Item>

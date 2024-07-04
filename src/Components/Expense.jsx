@@ -65,6 +65,8 @@ function Expense() {
         expensename: values.expensename,
         expenseamount: values.expenseamount,
         expensedoer: values.expensedoer,
+        createdAt: new Date().toLocaleString(),
+
       });
       handleClose();
       await fetchExpenses();
@@ -126,10 +128,11 @@ function Expense() {
   };
 
   const columns = [
-    { field: 'expenseid', headerName: 'ID', width: 200 },
-    { field: 'expensename', headerName: 'Expense', width: 200 },
+    { field: 'expenseid', headerName: 'ID', width: 180 },
+    { field: 'expensename', headerName: 'Expense', width: 150 },
     { field: 'expenseamount', headerName: 'Amount', width: 100 },
-    { field: 'expensedoer', headerName: 'Expense Done by', width: 200 },
+    { field: 'expensedoer', headerName: 'Expense Done by', width: 150 },
+    { field: 'createdAt', headerName: 'Created At', width: 180 }, 
     {
       field: 'actions',
       headerName: 'Actions',

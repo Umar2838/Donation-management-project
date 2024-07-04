@@ -32,10 +32,10 @@ function Rental() {
   const [newRentalDescription, setNewRentalDescription] = useState('');
 
   useEffect(() => {
-    fetchExpenses();
+    fetchRental();
   }, []);
 
-  const fetchExpenses = async () => {
+  const fetchRental = async () => {
     const rentalSnapshot = await getDocs(collection(db, "rentals"));
     const rentalData = rentalSnapshot.docs.map(doc => ({ id: doc.id, rentalid: doc.id, ...doc.data() }));
     setRentals(rentalData);
@@ -69,9 +69,11 @@ function Rental() {
         rentalamount: values.rentalamount,
         rentaldescription: values.rentaldescription,
         rentalduration: values.rentalduration,
+        createdAt: new Date().toLocaleString(),
+
       });
       handleClose();
-      await fetchExpenses();
+      await fetchRental();
       Swal.fire({
         position: "top-end",
         icon: "success",
@@ -98,7 +100,7 @@ function Rental() {
           rentaldescription: newRentalDescription,
           rentalduration:newDuration,
         });
-        await fetchExpenses();
+        await fetchRental();
         handleEditClose();
         Swal.fire({
           position: "top-end",
@@ -117,7 +119,7 @@ function Rental() {
     try {
       const rentalDoc = doc(db, "rentals", rentalId);
       await deleteDoc(rentalDoc);
-      await fetchExpenses();
+      await fetchRental();
       Swal.fire({
         position: "top-end",
         icon: "success",
@@ -126,16 +128,17 @@ function Rental() {
         timer: 1500
       });
     } catch (error) {
-      console.error("Error deleting rental:", error);
+      console.error("Error deleting rental:",Rental)
     }
   };
 
   const columns = [
-    { field: 'rentalid', headerName: 'ID', width: 150 },
-    { field: 'rentaltype', headerName: 'Rental Type', width: 150 },
+    { field: 'rentalid', headerName: 'ID', width: 100 },
+    { field: 'rentaltype', headerName: 'Rental Type', width: 130 },
     { field: 'rentalamount', headerName: 'Rent Amount', width: 100 },
-    { field: 'rentaldescription', headerName: 'Description', width: 200 },
+    { field: 'rentaldescription', headerName: 'Description', width: 180 },
     { field: 'rentalduration', headerName: 'Duration', width: 100 },
+    { field: 'createdAt', headerName: 'Created At', width: 170 }, 
 
     {
       field: 'actions',
