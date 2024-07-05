@@ -7,6 +7,7 @@ import { db, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from "../C
 import Swal from 'sweetalert2';
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import * as XLSX from 'xlsx'; 
 
 const style = {
   position: 'absolute',
@@ -132,6 +133,23 @@ function Rental() {
     }
   };
 
+  const handleDownloadExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(rentals);
+
+      const headers = Object.keys(worksheet).filter(key => key.match(/^[A-Z]1$/));
+    headers.forEach(header => {
+      worksheet[header].s = {
+        font: {
+          bold: true
+        }
+      };
+    });
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Rental");
+    XLSX.writeFile(workbook, "Rental.xlsx");
+  };
+
   const columns = [
     { field: 'rentalid', headerName: 'ID', width: 100 },
     { field: 'rentaltype', headerName: 'Rental Type', width: 130 },
@@ -160,8 +178,10 @@ function Rental() {
           <h3>Rental Management</h3>
         </div>
         <div>
+        <div className='btn-container' >
           <button onClick={handleOpen} className='btn'>Create rentals</button>
-          <Modal
+          <button onClick={handleDownloadExcel} className='btn'>Download Excel</button>
+          </div>          <Modal
             open={open}
             onClose={handleClose}
             aria-labelledby="modal-modal-title"

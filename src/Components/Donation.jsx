@@ -5,8 +5,9 @@ import Modal from '@mui/material/Modal';
 import { Button, Form, Input, InputNumber } from 'antd';
 import { db, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from "../Components/Firebase";
 import Swal from 'sweetalert2';
-import { FaEdit, FaFilePdf } from "react-icons/fa"; // Importing PDF icon
+import { FaEdit, FaFilePdf } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import * as XLSX from 'xlsx'; 
 
 const style = {
   position: 'absolute',
@@ -137,7 +138,6 @@ function Donation() {
   };
 
   const handleGenerateReport = (donar) => {
- 
     const reportContent = 
                           `Donation Details Report \n\n`+
                           `Donar Name: ${donar.donarName}\n` +
@@ -154,6 +154,24 @@ function Donation() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+  };
+
+  const handleDownloadExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(donars);
+
+    const headers = Object.keys(worksheet).filter(key => key.match(/^[A-Z]1$/));
+
+    headers.forEach(header => {
+      worksheet[header].s = {
+        font: {
+          bold: true
+        }
+      };
+    });
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Donations");
+    XLSX.writeFile(workbook, "Donations.xlsx");
   };
 
   const columns = [
@@ -185,7 +203,10 @@ function Donation() {
           <h3>Donation Management</h3>
         </div>
         <div>
+          <div className='btn-container' >
           <button onClick={handleOpen} className='btn'>Create Donar</button>
+          <button onClick={handleDownloadExcel} className='btn'>Download Excel</button> {/* New button for downloading Excel */}
+          </div>
           <Modal
             open={open}
             onClose={handleClose}

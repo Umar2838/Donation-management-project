@@ -7,6 +7,8 @@ import { db, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from "../C
 import Swal from 'sweetalert2';
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import * as XLSX from 'xlsx'; 
+
 
 const style = {
   position: 'absolute',
@@ -127,6 +129,25 @@ function Expense() {
     }
   };
 
+  
+  const handleDownloadExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(expenses);
+
+      const headers = Object.keys(worksheet).filter(key => key.match(/^[A-Z]1$/));
+    headers.forEach(header => {
+      worksheet[header].s = {
+        font: {
+          bold: true
+        }
+      };
+    });
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Expenses");
+    XLSX.writeFile(workbook, "Expenses.xlsx");
+  };
+
+
   const columns = [
     { field: 'expenseid', headerName: 'ID', width: 180 },
     { field: 'expensename', headerName: 'Expense', width: 150 },
@@ -153,7 +174,11 @@ function Expense() {
           <h3>Expense Management</h3>
         </div>
         <div>
+          <div className='btn-container' >
           <button onClick={handleOpen} className='btn'>Create expenses</button>
+          <button onClick={handleDownloadExcel} className='btn'>Download Excel</button>
+          </div>
+
           <Modal
             open={open}
             onClose={handleClose}

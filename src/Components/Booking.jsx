@@ -7,7 +7,7 @@ import { db, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from "../C
 import Swal from 'sweetalert2';
 import { FaEdit, FaFilePdf } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-
+import * as XLSX from 'xlsx'; 
 const { RangePicker } = DatePicker;
 
 const style = {
@@ -141,6 +141,8 @@ function Booking() {
     }
   };
 
+
+
   const handleGenerateReport = (booking) => {
     // Generate your report here
     const reportContent = 
@@ -160,6 +162,25 @@ function Booking() {
     a.click();
     document.body.removeChild(a);
   };
+
+  const handleDownloadExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(bookings);
+
+      const headers = Object.keys(worksheet).filter(key => key.match(/^[A-Z]1$/));
+    headers.forEach(header => {
+      worksheet[header].s = {
+        font: {
+          bold: true
+        }
+      };
+    });
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Booking");
+    XLSX.writeFile(workbook, "Booking.xlsx");
+  };
+
+
 
   const columns = [
     { field: 'bookingid', headerName: 'ID', width: 100 },
@@ -191,8 +212,11 @@ function Booking() {
           <h3>Booking Management</h3>
         </div>
         <div>
-          <button onClick={handleOpen} className='btn'>Create Bookings</button>
-          <Modal
+        <div className='btn-container' >
+          <button onClick={handleOpen} className='btn'>Create booking</button>
+          <button onClick={handleDownloadExcel} className='btn'>Download Excel</button>
+          </div>
+                    <Modal
             open={open}
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
