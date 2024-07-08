@@ -18,7 +18,10 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
       setActiveItem('bookingDetails');
     } else if (path === '/rental') {
       setActiveItem('rentalDetails');
+    } else if (path === '/voter') {
+      setActiveItem('voter');
     }
+
   }, [location]);
 
   return (
@@ -69,6 +72,14 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
         >
           <Link to="/rental">
             <BsMenuButtonWideFill className='icon'/> Rental Details
+          </Link>
+        </li>
+        <li 
+          className={`sidebar-list-item ${activeItem === 'voter' ? 'active' : ''}`}
+          onClick={() => setActiveItem('voter')}
+        >
+          <Link to="/voter">
+            <BsPeopleFill className='icon'/> Voter
           </Link>
         </li>
       </ul>

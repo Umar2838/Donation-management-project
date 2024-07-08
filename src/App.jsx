@@ -9,11 +9,12 @@ import Donation from './Components/Donation';
 import Expense from './Components/Expense';
 import Booking from './Components/Booking';
 import Rental from './Components/Rental';
+import Voter from './Components/Voter';
 
 function App() {
   const [openSidebarToggle, setOpenSidebarToggle] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const Navigate = useNavigate(); // Issue: useNavigate should be useNavigate()
+  const Navigate = useNavigate(); 
 
   useEffect(() => {
     const loggedIn = localStorage.getItem('isAuthenticated') === 'true';
@@ -60,6 +61,7 @@ function App() {
           <Route path="/expenses" element={<ProtectedRoute element={<Expense />} />} />
           <Route path="/booking" element={<ProtectedRoute element={<Booking />} />} />
           <Route path="/rental" element={<ProtectedRoute element={<Rental />} />} />
+          <Route path="/voter" element={<ProtectedRoute element={<Voter />} />} />
         </Routes>
       </main>
     </div>
