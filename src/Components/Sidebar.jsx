@@ -20,6 +20,8 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
       setActiveItem('rentalDetails');
     } else if (path === '/voter') {
       setActiveItem('voter');
+    } else if (path === '/report') {
+      setActiveItem('report');
     }
 
   }, [location]);
@@ -80,6 +82,14 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
         >
           <Link to="/voter">
             <BsPeopleFill className='icon'/> Voter
+          </Link>
+        </li>
+        <li 
+          className={`sidebar-list-item ${activeItem === 'report' ? 'active' : ''}`}
+          onClick={() => setActiveItem('report')}
+        >
+          <Link to="/report">
+            <BsListCheck className='icon'/> Report
           </Link>
         </li>
       </ul>

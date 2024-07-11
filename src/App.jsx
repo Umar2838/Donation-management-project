@@ -10,6 +10,7 @@ import Expense from './Components/Expense';
 import Booking from './Components/Booking';
 import Rental from './Components/Rental';
 import Voter from './Components/Voter';
+import Report from "./Components/Report";
 
 function App() {
   const [openSidebarToggle, setOpenSidebarToggle] = useState(false);
@@ -62,6 +63,8 @@ function App() {
           <Route path="/booking" element={<ProtectedRoute element={<Booking />} />} />
           <Route path="/rental" element={<ProtectedRoute element={<Rental />} />} />
           <Route path="/voter" element={<ProtectedRoute element={<Voter />} />} />
+          <Route path="/report" element={<ProtectedRoute element={<Report />} />} />
+
         </Routes>
       </main>
     </div>

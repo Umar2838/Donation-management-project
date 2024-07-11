@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { DataGrid } from "@mui/x-data-grid";
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
-import { Button, Form, Input, InputNumber, DatePicker } from 'antd';
+import { Button, Form, Input, InputNumber } from 'antd';
 import { db, collection, addDoc, updateDoc, deleteDoc, getDocs, doc } from "../Components/Firebase";
 import Swal from 'sweetalert2';
 import { FaEdit, FaFilePdf } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import * as XLSX from 'xlsx'; 
-const { RangePicker } = DatePicker;
 
 const style = {
   position: 'absolute',
-  top: '55%',
+  top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 400,
@@ -21,75 +20,73 @@ const style = {
   borderRadius: "10px",
   boxShadow: 24,
   p: 4,
-  zIndex: 1000, // Ensure the modal has a high z-index
 };
 
-function Booking() {
+function Donation() {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [bookings, setBookings] = useState([]);
-  const [selectedBooking, setSelectedBooking] = useState(null);
-  const [newBookingType, setNewBookingType] = useState('');
-  const [newBookingAmount, setNewBookingAmount] = useState('');
-  const [newDuration, setNewDuration] = useState('');
+  const [donars, setDonars] = useState([]);
+  const [selectedDonar, setSelectedDonar] = useState(null);
+  const [newDonarName, setNewDonarName] = useState('');
   const [newContact, setNewContact] = useState('');
-  const [newBookingDates, setNewBookingDates] = useState([]);
+  const [newAmount, setNewAmount] = useState('');
+  const [newPurpose, setNewPurpose] = useState('');
+  const [newRecieverName, setNewRecieverName] = useState('');
 
   useEffect(() => {
-    fetchBooking();
+    fetchUsers();
   }, []);
 
-  const fetchBooking = async () => {
-    const bookingSnapshot = await getDocs(collection(db, "bookings"));
-    const bookingData = bookingSnapshot.docs.map(doc => ({ id: doc.id, bookingid: doc.id, ...doc.data() }));
-    setBookings(bookingData);
+  const fetchUsers = async () => {
+    const usersSnapshot = await getDocs(collection(db, "donar"));
+    const donarData = usersSnapshot.docs.map(doc => ({ id: doc.id, donarid: doc.id, ...doc.data() }));
+    setDonars(donarData);
   };
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const handleEditOpen = (booking) => {
-    setSelectedBooking(booking);
-    setNewBookingType(booking.bookingtype);
-    setNewBookingAmount(booking.bookingamount);
-    setNewDuration(booking.bookingduration);
-    setNewContact(booking.bookingcontact);
-    setNewBookingDates([booking.bookingstartdate, booking.bookingenddate]);
+  const handleEditOpen = (donar) => {
+    setSelectedDonar(donar);
+    setNewDonarName(donar.donarName);
+    setNewContact(donar.contact);
+    setNewAmount(donar.amount);
+    setNewPurpose(donar.purpose);
+    setNewRecieverName(donar.recname);
     setEditOpen(true);
   };
 
   const handleEditClose = () => {
-    setSelectedBooking(null);
-    setNewBookingType('');
-    setNewBookingAmount('');
-    setNewDuration('');
+    setSelectedDonar(null);
+    setNewDonarName('');
     setNewContact('');
-    setNewBookingDates([]);
+    setNewAmount('');
+    setNewPurpose('');
+    setNewRecieverName('');
     setEditOpen(false);
   };
 
   const onFinish = async (values) => {
     try {
-      await addDoc(collection(db, "bookings"), {
-        bookingtype: values.bookingtype,
-        bookingamount: values.bookingamount,
-        bookingstartdate: values.bookingdates[0].format('YYYY-MM-DD'),
-        bookingenddate: values.bookingdates[1].format('YYYY-MM-DD'),
-        bookingcontact: values.bookingcontact,
-        bookingduration: values.bookingduration,
+      await addDoc(collection(db, "donar"), {
+        donarName: values.donarName,
+        contact: values.contact,
+        amount: values.amount,
+        purpose: values.purpose,
+        recname: values.recname,
         createdAt: new Date().toLocaleString(),
       });
       handleClose();
-      await fetchBooking();
+      await fetchUsers();
       Swal.fire({
         position: "top-end",
         icon: "success",
-        title: "Booking created successfully",
+        title: "Donar created successfully",
         showConfirmButton: false,
         timer: 1500
       });
     } catch (error) {
-      console.error("Error creating booking:", error);
+      console.error("Error creating user:", error);
     }
   };
 
@@ -98,75 +95,72 @@ function Booking() {
   };
 
   const handleEditSubmit = async () => {
-    if (selectedBooking) {
+    if (selectedDonar) {
       try {
-        const BookingDoc = doc(db, "bookings", selectedBooking.id);
-        await updateDoc(BookingDoc, {
-          bookingtype: newBookingType,
-          bookingamount: newBookingAmount,
-          bookingcontact: newContact,
-          bookingstartdate: newBookingDates[0].format('YYYY-MM-DD'),
-          bookingenddate: newBookingDates[1].format('YYYY-MM-DD'),
-          bookingduration: newDuration,
+        const donarDoc = doc(db, "donar", selectedDonar.id);
+        await updateDoc(donarDoc, {
+          donarName: newDonarName,
+          contact: newContact,
+          amount: newAmount,
+          purpose: newPurpose,
+          recname: newRecieverName,
         });
-        await fetchBooking();
+        await fetchUsers();
         handleEditClose();
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "Booking updated successfully",
+          title: "Donor updated successfully",
           showConfirmButton: false,
           timer: 1500
         });
       } catch (error) {
-        console.error("Error updating booking:", error);
+        console.error("Error updating donor:", error);
       }
     }
   };
 
-  const handleDelete = async (bookingId) => {
+  const handleDelete = async (userId) => {
     try {
-      const BookingDoc = doc(db, "bookings", bookingId);
-      await deleteDoc(BookingDoc);
-      await fetchBooking();
+      const userDoc = doc(db, "donar", userId);
+      await deleteDoc(userDoc);
+      await fetchUsers();
       Swal.fire({
         position: "top-end",
         icon: "success",
-        title: "Booking deleted successfully",
+        title: "Donar deleted successfully",
         showConfirmButton: false,
         timer: 1500
       });
     } catch (error) {
-      console.error("Error deleting booking:", error);
+      console.error("Error deleting user:", error);
     }
   };
 
-
-
-  const handleGenerateReport = (booking) => {
-    // Generate your report here
+  const handleGenerateReport = (donar) => {
     const reportContent = 
-    `Booking Details Report \n\n`+
-    `Booking Type: ${booking.bookingtype}\n` +
-                          `Amount: ${booking.bookingamount}\n` +
-                          `Booking Dates: ${booking.bookingstartdate} to ${booking.bookingenddate}\n` +
-                          `Contact: ${booking.bookingcontact}\n` +
-                          `Duration: ${booking.bookingduration}`;
+                          `Donation Details Report \n\n`+
+                          `Donar Name: ${donar.donarName}\n` +
+                          `Phone No: ${donar.contact}\n` +
+                          `Amount: ${donar.amount}\n` +
+                          `Purpose: ${donar.purpose}\n` +
+                          `Received by: ${donar.recname}`;
 
     const blob = new Blob([reportContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${booking.bookingtype}_report.txt`;
+    a.download = `${donar.donarName}_report.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   };
 
   const handleDownloadExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(bookings);
+    const worksheet = XLSX.utils.json_to_sheet(donars);
 
-      const headers = Object.keys(worksheet).filter(key => key.match(/^[A-Z]1$/));
+    const headers = Object.keys(worksheet).filter(key => key.match(/^[A-Z]1$/));
+
     headers.forEach(header => {
       worksheet[header].s = {
         font: {
@@ -176,25 +170,22 @@ function Booking() {
     });
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Booking");
-    XLSX.writeFile(workbook, "Booking.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Donations");
+    XLSX.writeFile(workbook, "Donations.xlsx");
   };
 
-
-
   const columns = [
-    { field: 'bookingid', headerName: 'ID', width: 100 },
-    { field: 'bookingtype', headerName: 'Booking Type', width: 120 },
-    { field: 'bookingamount', headerName: 'Amount', width: 100 },
-    { field: 'bookingcontact', headerName: 'Contact', width: 100 },
-    { field: 'bookingstartdate', headerName: 'Start Date', width: 120 },
-    { field: 'bookingenddate', headerName: 'End Date', width: 120 },
-    { field: 'bookingduration', headerName: 'Duration', width: 100 },
-    { field: 'createdAt', headerName: 'Created At', width: 170 },
+    { field: 'donarid', headerName: 'ID', width: 100 },
+    { field: 'donarName', headerName: 'Donar Name', width: 100, editable: true },
+    { field: 'contact', headerName: 'Phone No', width: 100 },
+    { field: 'amount', headerName: 'Amount', width: 100 },
+    { field: 'purpose', headerName: 'Purpose', width: 100 },
+    { field: 'recname', headerName: 'Received by', width: 100 },
+    { field: 'createdAt', headerName: 'Created At', width: 150 },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 120,
+      width: 150,
       renderCell: (params) => (
         <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
           <Button style={{ backgroundColor: 'transparent', border: "none", padding: "5px" }} onClick={() => handleEditOpen(params.row)}><FaEdit size={20} color='#3a3c3f' /></Button>
@@ -209,14 +200,14 @@ function Booking() {
     <main className='main-container'>
       <div className='main-title'>
         <div>
-          <h3>Booking Management</h3>
+          <h3>Donation Management</h3>
         </div>
         <div>
-        <div className='btn-container' >
-          <button onClick={handleOpen} className='btn'>Create booking</button>
-          <button onClick={handleDownloadExcel} className='btn'>Download Excel</button>
+          <div className='btn-container' >
+          <button onClick={handleOpen} className='btn'>Create Donar</button>
+          <button onClick={handleDownloadExcel} className='btn'>Download Excel</button> {/* New button for downloading Excel */}
           </div>
-                    <Modal
+          <Modal
             open={open}
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
@@ -234,14 +225,24 @@ function Booking() {
                 autoComplete="off"
               >
                 <Form.Item
-                  label="Booking Type"
-                  name="bookingtype"
-                  rules={[{ required: true, message: 'Please input booking type!' }]}
+                  label="Donar Name"
+                  name="donarName"
+                  rules={[{ required: true, message: 'Please input donar name!' }]}
                 >
                   <Input />
                 </Form.Item>
                 <Form.Item
-                  name="bookingamount"
+                  name="contact"
+                  label="Phone No"
+                  rules={[
+                    { type: 'number', message: 'The input is not valid number!' },
+                    { required: true, message: 'Please input Phone No!' },
+                  ]}
+                >
+                  <InputNumber />
+                </Form.Item>
+                <Form.Item
+                  name="amount"
                   label="Amount"
                   rules={[
                     { type: 'number', message: 'The input is not valid number!' },
@@ -251,35 +252,21 @@ function Booking() {
                   <InputNumber />
                 </Form.Item>
                 <Form.Item
-                  name="bookingcontact"
-                  label="Contact"
-                  rules={[
-                    { type: 'number', message: 'The input is not valid number!' },
-                    { required: true, message: 'Please input contact!' },
-                  ]}
+                  label="Purpose"
+                  name="purpose"
+                  rules={[{ required: true, message: 'Please input donation purpose!' }]}
                 >
-                  <InputNumber />
+                  <Input />
                 </Form.Item>
                 <Form.Item
-                  name="bookingdates"
-                  label="Booking Dates"
-                  rules={[
-                    { type: 'array', required: true, message: 'Please select booking dates!' },
-                  ]}
-                >
-                  <RangePicker getPopupContainer={(triggerNode) => triggerNode.parentNode} />
-                </Form.Item>
-                <Form.Item
-                  name="bookingduration"
-                  label="Duration"
-                  rules={[
-                    { required: true, message: 'Please input booking duration!' },
-                  ]}
+                  label="Receiver Name"
+                  name="recname"
+                  rules={[{ required: true, message: 'Please input receiver name!' }]}
                 >
                   <Input />
                 </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                  <Button type="primary" htmlType="submit">Submit</Button>
+                  <Button type="primary" htmlType="submit">Donate</Button>
                 </Form.Item>
               </Form>
             </Box>
@@ -288,56 +275,76 @@ function Booking() {
       </div>
       <div style={{ height: 400, width: '100%' }}>
         <DataGrid
-          rows={bookings}
+          rows={donars}
           columns={columns}
           pageSize={5}
           checkboxSelection
           disableSelectionOnClick
         />
       </div>
-      {selectedBooking && (
+      {selectedDonar && (
         <Modal
           open={editOpen}
           onClose={handleEditClose}
-          aria-labelledby="edit-modal-title"
-          aria-describedby="edit-modal-description"
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
         >
           <Box sx={style}>
             <Form
-              name="editForm"
+              name="basic"
               labelCol={{ span: 8 }}
               wrapperCol={{ span: 16 }}
+              style={{ maxWidth: 500 }}
+              initialValues={{ remember: true }}
               onFinish={handleEditSubmit}
+              onFinishFailed={onFinishFailed}
+              autoComplete="off"
             >
               <Form.Item
-                label="Booking Type"
-                name="bookingtype"
+                label="Donar Name"
+                name="donarName"
+                rules={[{ required: true, message: 'Please input donar name!' }]}
+                initialValue={selectedDonar.donarName}
               >
-                <Input value={newBookingType} onChange={(e) => setNewBookingType(e.target.value)} />
+                <Input value={newDonarName} onChange={(e) => setNewDonarName(e.target.value)} />
               </Form.Item>
               <Form.Item
-                label="Amount"
-                name="bookingamount"
-              >
-                <InputNumber value={newBookingAmount} onChange={(value) => setNewBookingAmount(value)} />
-              </Form.Item>
-              <Form.Item
-                label="Contact"
-                name="bookingcontact"
+                name="contact"
+                label="Phone No"
+                rules={[
+                  { type: 'number', message: 'The input is not valid number!' },
+                  { required: true, message: 'Please input Phone No!' },
+                ]}
+                initialValue={selectedDonar.contact}
               >
                 <InputNumber value={newContact} onChange={(value) => setNewContact(value)} />
               </Form.Item>
               <Form.Item
-                label="Booking Dates"
-                name="bookingdates"
+                name="amount"
+                label="Amount"
+                rules={[
+                  { type: 'number', message: 'The input is not valid number!' },
+                  { required: true, message: 'Please input Amount!' },
+                ]}
+                initialValue={selectedDonar.amount}
               >
-                <RangePicker value={newBookingDates} onChange={(dates) => setNewBookingDates(dates)} getPopupContainer={(triggerNode) => triggerNode.parentNode} />
+                <InputNumber value={newAmount} onChange={(value) => setNewAmount(value)} />
               </Form.Item>
               <Form.Item
-                label="Duration"
-                name="bookingduration"
+                label="Purpose"
+                name="purpose"
+                rules={[{ required: true, message: 'Please input donation purpose!' }]}
+                initialValue={selectedDonar.purpose}
               >
-                <Input value={newDuration} onChange={(e) => setNewDuration(e.target.value)} />
+                <Input value={newPurpose} onChange={(e) => setNewPurpose(e.target.value)} />
+              </Form.Item>
+              <Form.Item
+                label="Receiver Name"
+                name="recname"
+                rules={[{ required: true, message: 'Please input receiver name!' }]}
+                initialValue={selectedDonar.recname}
+              >
+                <Input value={newRecieverName} onChange={(e) => setNewRecieverName(e.target.value)} />
               </Form.Item>
               <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                 <Button type="primary" htmlType="submit">Update</Button>
@@ -350,4 +357,4 @@ function Booking() {
   );
 }
 
-export default Booking;
+export default Donation;
